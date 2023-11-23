@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from 'moment';
 
 export const months = moment.months();
 
@@ -17,7 +17,7 @@ const generateNextMonthDays = (
   const m = month;
   const y = year;
 
-  const daysInMonth = moment(`${y}-${m}`, "YYYY-MM").daysInMonth();
+  const daysInMonth = moment(`${y}-${m}`, 'YYYY-MM').daysInMonth();
 
   // const endMonthDayOffset = moment(
   //   `${year}-${month}-${daysInMonth}`,
@@ -29,7 +29,7 @@ const generateNextMonthDays = (
   for (let day = 1; day <= daysInMonth; day++) {
     const date = moment(
       `${year}-${month - 1 > 0 ? month - 1 : 12}-${day}`,
-      "YYYY-MM-DD"
+      'YYYY-MM-DD'
     );
     monthDatesArray.push(date);
   }
@@ -38,18 +38,18 @@ const generateNextMonthDays = (
 };
 
 const generatePrevMonthDays = (month: number, year: number) => {
-  const startMonthDayOffset = moment(`${year}-${month}`, "YYYY-MM").day();
+  const startMonthDayOffset = moment(`${year}-${month}`, 'YYYY-MM').day();
 
   const daysInMonth = moment(
     `${year}-${month - 1 > 0 ? month - 1 : 12}`,
-    "YYYY-MM"
+    'YYYY-MM'
   ).daysInMonth();
   const monthDatesArray = [];
 
   for (let day = 1; day <= daysInMonth; day++) {
     const date = moment(
       `${year}-${month - 1 > 0 ? month - 1 : 12}-${day}`,
-      "YYYY-MM-DD"
+      'YYYY-MM-DD'
     );
     monthDatesArray.push(date);
   }
@@ -60,24 +60,19 @@ const generatePrevMonthDays = (month: number, year: number) => {
 };
 
 export const getMonthDays = (month: number, year: number) => {
-  const daysInMonth = moment(`${year}-${month}`, "YYYY-MM").daysInMonth();
+  const daysInMonth = moment(`${year}-${month}`, 'YYYY-MM').daysInMonth();
   const monthDatesArray = [];
 
   for (let day = 1; day <= daysInMonth; day++) {
-    const date = moment(`${year}-${month}-${day}`, "YYYY-MM-DD");
+    const date = moment(`${year}-${month}-${day}`, 'YYYY-MM-DD');
     monthDatesArray.push(date);
   }
 
   const prevMonthOffset = generatePrevMonthDays(month, year);
 
-  const missingLength = 42 - (prevMonthOffset.length + monthDatesArray.length);
+  // const missingLength = 42 - (prevMonthOffset.length + monthDatesArray.length);
 
-  const nextMonthOffset = generateNextMonthDays(month, year, missingLength);
+  // const nextMonthOffset = generateNextMonthDays(month, year, missingLength);
 
-  return [...prevMonthOffset, ...monthDatesArray, ...nextMonthOffset];
-  //   .filter(
-  //     (d, i, arr) =>
-  //       i ===
-  //       arr.findIndex((dt) => dt.format("DD-MM-YYYY") === d.format("DD-MM-YYYY"))
-  //   );
+  return [...prevMonthOffset, ...monthDatesArray];
 };
