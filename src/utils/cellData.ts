@@ -1,14 +1,11 @@
-import moment from 'moment';
+import moment, { Moment } from "moment";
 
-export const generateCellsDataForYear = (year: string | number) => {
-  const momentDate = moment().set('date', 1).set('month', 1).set('year', +year);
-
+export const generateCellsDataForYear = (momentInstance: Moment) => {
   const cellsData: Record<string, []> = {};
+  const momentCopy = moment(momentInstance);
 
   moment.monthsShort().forEach((m: string) => {
-    momentDate.set('month', +m);
-
-    // console.log(momentDate.get("DDD"), "DAYS");
+    momentCopy.set("month", +m);
   });
 
   return cellsData;

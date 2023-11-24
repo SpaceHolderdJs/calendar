@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment, { Moment } from "moment";
 
 export const months = moment.months();
 
@@ -9,70 +9,42 @@ export const monthsObject = months.reduce<Record<string, string>>((acc, m) => {
 
 export type MonthsType = keyof typeof monthsObject;
 
-const generateNextMonthDays = (
-  month: number,
-  year: number,
-  missingLength: number
-) => {
-  const m = month;
-  const y = year;
+export const getMonthDays = (momentInstance: Moment) => {
+  const year = momentInstance.year();
+  const month = momentInstance.month();
 
-  const daysInMonth = moment(`${y}-${m}`, 'YYYY-MM').daysInMonth();
+  const startDate = moment([year, month]);
 
-  // const endMonthDayOffset = moment(
-  //   `${year}-${month}-${daysInMonth}`,
-  //   "YYYY-MM"
-  // ).day();
+  const daysInMonth = startDate.daysInMonth();
 
+  // Create an array to hold all the dates of the month
   const monthDatesArray = [];
 
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = moment(
-      `${year}-${month - 1 > 0 ? month - 1 : 12}-${day}`,
-      'YYYY-MM-DD'
-    );
+  // Loop through each day of the month and add it to the array
+  for (let day = 0; day < daysInMonth; day++) {
+    const date = startDate.clone().add(day, "days");
     monthDatesArray.push(date);
   }
 
-  return monthDatesArray.slice(0, missingLength);
+  return monthDatesArray;
 };
 
-const generatePrevMonthDays = (month: number, year: number) => {
-  const startMonthDayOffset = moment(`${year}-${month}`, 'YYYY-MM').day();
+export const getMonthDaysWithOffsets = (momentInstance: Moment) => {
+  const firstDayOfMonth = momentInstance.clone().set("date", 1);
+  const weekDay = firstDayOfMonth.weekday();
 
-  const daysInMonth = moment(
-    `${year}-${month - 1 > 0 ? month - 1 : 12}`,
-    'YYYY-MM'
-  ).daysInMonth();
-  const monthDatesArray = [];
+  console.log(weekDay, "weekDay");
 
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = moment(
-      `${year}-${month - 1 > 0 ? month - 1 : 12}-${day}`,
-      'YYYY-MM-DD'
-    );
-    monthDatesArray.push(date);
-  }
+  const prevMonthDays =
+    weekDay <= 1
+      ? []
+      : getMonthDays(momentInstance.clone().subtract(1, "month")).slice(
+          -weekDay + 1
+        );
 
-  return startMonthDayOffset === 0
-    ? []
-    : monthDatesArray.slice(-startMonthDayOffset);
-};
-
-export const getMonthDays = (month: number, year: number) => {
-  const daysInMonth = moment(`${year}-${month}`, 'YYYY-MM').daysInMonth();
-  const monthDatesArray = [];
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = moment(`${year}-${month}-${day}`, 'YYYY-MM-DD');
-    monthDatesArray.push(date);
-  }
-
-  const prevMonthOffset = generatePrevMonthDays(month, year);
-
-  // const missingLength = 42 - (prevMonthOffset.length + monthDatesArray.length);
-
-  // const nextMonthOffset = generateNextMonthDays(month, year, missingLength);
-
-  return [...prevMonthOffset, ...monthDatesArray];
+  return [
+    ...prevMonthDays,
+    ...getMonthDays(momentInstance),
+    // ...getMonthDays(momentInstance.clone().add(1, "month")),
+  ];
 };

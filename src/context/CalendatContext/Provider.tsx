@@ -5,7 +5,7 @@ import {
   useCallback,
   createContext,
 } from "react";
-import moment from "moment";
+import moment, { Moment } from "moment";
 import { CalendarContexInterface, CalendarEvent } from "./types";
 import { generateCellsDataForYear } from "../../utils/cellData";
 
@@ -16,49 +16,64 @@ export const CalendarContext = createContext<CalendarContexInterface | null>(
 export const CalendarContextProvider: FC<PropsWithChildren> = ({
   children,
 }) => {
-  const [dateDetails, setDateDetails] = useState({
-    d: moment().date(),
-    m: moment().month(),
-    y: moment().year(),
-  });
+  const [currentDate, setCurrentDate] = useState<Moment>(moment());
 
-  const setCurrentDay = useCallback((d: number) => {
-    setDateDetails((prev) => ({ ...prev, d }));
-  }, []);
-
-  const setCurrentMonth = useCallback((m: number) => {
-    setDateDetails((prev) => ({ ...prev, m }));
-  }, []);
-
-  const setCurrentYear = useCallback((y: number) => {
-    setDateDetails((prev) => ({ ...prev, y }));
-  }, []);
+  console.log(currentDate);
 
   const [cellsData, setCellsData] = useState<
     Record<string, Array<CalendarEvent>>
-  >(generateCellsDataForYear(dateDetails.y));
+  >(generateCellsDataForYear(currentDate));
 
   const addEvent = useCallback<(date: string, event: CalendarEvent) => void>(
     (date, event) => {
       setCellsData((prevData) => ({
         ...prevData,
-        [date]: [...prevData[date], event],
+        [date]: [...(prevData[date] || []), event],
       }));
     },
     []
   );
 
+  const removeEvent = useCallback<(date: string, event: CalendarEvent) => void>(
+    (date, event) => {
+      setCellsData((prevData) => ({
+        ...prevData,
+        [date]: [
+          ...(prevData[date] || []).filter(
+            ({ title }) => title !== event.title
+          ),
+        ],
+      }));
+    },
+    []
+  );
+
+  const updateEvent = useCallback<(date: string, event: CalendarEvent) => void>(
+    (date, event) => {
+      setCellsData((prevData) => ({
+        ...prevData,
+        [date]: [
+          ...(prevData[date] || []).map(({ title }, i, arr) =>
+            title === event.title ? event : arr[i]
+          ),
+        ],
+      }));
+    },
+    []
+  );
+
+  console.log(cellsData);
+
   return (
     <CalendarContext.Provider
       value={{
-        dateDetails,
+        currentDate,
         cellsData,
         actions: {
-          setDateDetails,
-          setCurrentDay,
-          setCurrentMonth,
-          setCurrentYear,
+          setCurrentDate,
           addEvent,
+          removeEvent,
+          updateEvent,
         },
       }}>
       {children}

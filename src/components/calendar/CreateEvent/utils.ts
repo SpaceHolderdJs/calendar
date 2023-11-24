@@ -1,8 +1,9 @@
-import { FormDataType } from './types';
+import moment from "moment";
+import { FormDataType } from "./types";
 
 export const initialFormData: FormDataType = {
-  date: '',
-  time: '',
-  description: '',
-  title: '',
+  date: moment(),
+  time: moment().format("hh:mm"),
+  description: "",
+  title: "",
 };
