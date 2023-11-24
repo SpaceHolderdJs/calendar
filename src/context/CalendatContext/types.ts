@@ -2,6 +2,7 @@ import { Moment } from "moment";
 import { Dispatch } from "react";
 
 export interface CalendarEvent {
+  id: string;
   title: string;
   description?: string;
   date: Moment;

@@ -8,6 +8,7 @@ import {
 import moment, { Moment } from "moment";
 import { CalendarContexInterface, CalendarEvent } from "./types";
 import { generateCellsDataForYear } from "../../utils/cellData";
+import { sortEvents } from "../../utils/events";
 
 export const CalendarContext = createContext<CalendarContexInterface | null>(
   null
@@ -28,7 +29,7 @@ export const CalendarContextProvider: FC<PropsWithChildren> = ({
     (date, event) => {
       setCellsData((prevData) => ({
         ...prevData,
-        [date]: [...(prevData[date] || []), event],
+        [date]: sortEvents([...(prevData[date] || []), event]),
       }));
     },
     []
@@ -38,11 +39,7 @@ export const CalendarContextProvider: FC<PropsWithChildren> = ({
     (date, event) => {
       setCellsData((prevData) => ({
         ...prevData,
-        [date]: [
-          ...(prevData[date] || []).filter(
-            ({ title }) => title !== event.title
-          ),
-        ],
+        [date]: [...(prevData[date] || []).filter(({ id }) => id !== event.id)],
       }));
     },
     []
@@ -52,11 +49,11 @@ export const CalendarContextProvider: FC<PropsWithChildren> = ({
     (date, event) => {
       setCellsData((prevData) => ({
         ...prevData,
-        [date]: [
-          ...(prevData[date] || []).map(({ title }, i, arr) =>
-            title === event.title ? event : arr[i]
+        [date]: sortEvents([
+          ...(prevData[date] || []).map(({ id }, i, arr) =>
+            id === event.id ? event : arr[i]
           ),
-        ],
+        ]),
       }));
     },
     []

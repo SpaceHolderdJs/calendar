@@ -7,6 +7,8 @@ import { weekDaysNamesShort } from "../../../utils/week";
 import { CalendarContext } from "../../../context/CalendatContext/Provider";
 import moment from "moment";
 import { Close } from "@mui/icons-material";
+import { TransitionsModal } from "../Modal";
+import { CreateEvent } from "../CreateEvent/CreateEvent";
 
 export const DateCell: FC<DateCellProps> = ({ date }) => {
   const { currentDate, cellsData, actions } = useContext(CalendarContext)!;
@@ -36,7 +38,8 @@ export const DateCell: FC<DateCellProps> = ({ date }) => {
         width="100%"
         height="20%"
         alignItems="center"
-        justifyContent="space-between">
+        justifyContent="space-between"
+        flexWrap="wrap">
         <Typography
           variant="caption"
           sx={{
@@ -55,32 +58,37 @@ export const DateCell: FC<DateCellProps> = ({ date }) => {
         gap="5px"
         marginTop="10px">
         {events?.map(({ title, time, date }, i, arr) => (
-          <FlexRow
-            width="100%"
-            alignItems="center"
-            gap="20px"
-            background="black"
-            borderRadius="4px"
-            boxSizing="border-box"
-            justifyContent="space-between"
-            padding="0 10px">
-            <FlexRow gap="10px">
-              {time && (
-                <Typography margin="0" variant="caption">
-                  {time}
-                </Typography>
-              )}
-              <Typography margin="0" variant="caption">
-                {title}
-              </Typography>
-            </FlexRow>
-            <Close
-              sx={{ transform: "scale(0.8) translateX(10px)" }}
-              onClick={() =>
-                actions?.removeEvent(date.format(`YYYY-MM-DD`), arr[i])
-              }
-            />
-          </FlexRow>
+          <TransitionsModal
+            button={
+              <FlexRow
+                width="100%"
+                alignItems="center"
+                gap="20px"
+                background="black"
+                borderRadius="4px"
+                boxSizing="border-box"
+                justifyContent="space-between"
+                padding="0 10px">
+                <FlexRow gap="10px">
+                  {time && (
+                    <Typography margin="0" variant="caption">
+                      {time}
+                    </Typography>
+                  )}
+                  <Typography margin="0" variant="caption">
+                    {title}
+                  </Typography>
+                </FlexRow>
+                <Close
+                  sx={{ transform: "scale(0.8) translateX(10px)" }}
+                  onClick={() =>
+                    actions?.removeEvent(date.format(`YYYY-MM-DD`), arr[i])
+                  }
+                />
+              </FlexRow>
+            }
+            children={<CreateEvent eventToDisplay={arr[i]} />}
+          />
         ))}
       </FlexColumn>
     </Cell>

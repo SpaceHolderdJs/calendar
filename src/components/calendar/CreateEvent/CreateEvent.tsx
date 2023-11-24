@@ -1,6 +1,7 @@
 import {
   ChangeEvent,
   FC,
+  MouseEventHandler,
   useCallback,
   useContext,
   useMemo,
@@ -9,20 +10,23 @@ import {
 import { FlexColumn, TextArea } from "react-ui-expert";
 import { CalendarContext } from "../../../context/CalendatContext/Provider";
 import { Button, Typography } from "@mui/material";
-import { FormDataType } from "./types";
+import { CreateEventProps, FormDataType } from "./types";
 import { initialFormData } from "./utils";
 import { Field } from "./styled";
 import { ModalContext } from "../Modal";
 import moment, { Moment } from "moment";
+import { v4 as uuid } from "uuid";
 
-export const CreateEvent: FC = () => {
+export const CreateEvent: FC<CreateEventProps> = ({ eventToDisplay }) => {
   const { currentDate, actions } = useContext(CalendarContext)!;
   const { closeModal } = useContext(ModalContext)!;
 
-  const [formData, setFormData] = useState<FormDataType>({
-    ...initialFormData,
-    date: currentDate,
-  });
+  const [formData, setFormData] = useState<FormDataType>(
+    eventToDisplay || {
+      ...initialFormData,
+      date: currentDate,
+    }
+  );
 
   const { date, title, time, description } = formData;
 
@@ -34,15 +38,28 @@ export const CreateEvent: FC = () => {
 
   const isDisabled = useMemo(() => !title || !date, [date, title]);
 
-  const onEventCreate = useCallback(() => {
-    actions?.addEvent(date.format(`YYYY-MM-DD`), formData);
-    closeModal();
-  }, [actions, date, formData, closeModal]);
+  const onEventCreate = useCallback<MouseEventHandler<HTMLButtonElement>>(
+    (e) => {
+      e.stopPropagation();
+      if (actions) {
+        const action: keyof typeof actions = eventToDisplay
+          ? "updateEvent"
+          : "addEvent";
+
+        actions[action](date.format(`YYYY-MM-DD`), {
+          ...formData,
+          id: eventToDisplay ? eventToDisplay.id : uuid(),
+        });
+      }
+      closeModal();
+    },
+    [actions, closeModal, eventToDisplay, date, formData]
+  );
 
   return (
     <FlexColumn width="100%" gap="20px">
       <Typography variant="h6" textAlign="center">
-        Create an event
+        {eventToDisplay ? "Edit" : "Create"} an event
       </Typography>
       <Field
         type="date"
@@ -61,6 +78,7 @@ export const CreateEvent: FC = () => {
       <Field
         type="text"
         placeholder="Title"
+        value={title}
         onChange={(e: ChangeEvent<HTMLInputElement>) =>
           setFormDataValue("title", e.target.value)
         }
